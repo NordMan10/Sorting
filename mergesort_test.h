@@ -2,6 +2,10 @@
 #define MERGESORT_TEST_H
 
 #include <QObject>
+#include <QTest>
+#include <iostream>
+
+#include "mergesorting.h"
 
 class MergeSort_Test : public QObject
 {
@@ -9,7 +13,9 @@ class MergeSort_Test : public QObject
 public:
     explicit MergeSort_Test(QObject *parent = nullptr);
 
-signals:
+private slots:
+    void MergeArrays_test();
+    void pow_test();
 
 };
 

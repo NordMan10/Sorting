@@ -1,3 +1,5 @@
 .qmake.stash
 .qtc_clangd/*
 *.pro.user
+moc_*
+*.o

@@ -14,10 +14,10 @@ EQ            = =
 
 CC            = gcc
 CXX           = g++
-DEFINES       = -DQT_QML_DEBUG -DQT_CORE_LIB
+DEFINES       = -DQT_QML_DEBUG -DQT_TESTLIB_LIB -DQT_CORE_LIB -DQT_TESTCASE_BUILDDIR='"/home/nick/Development/HelloWorld"'
 CFLAGS        = -pipe -g -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -g -std=gnu++11 -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I. -I/usr/include/qt -I/usr/include/qt/QtCore -I. -I/usr/lib/qt/mkspecs/linux-g++
+INCPATH       = -I. -I/usr/include/qt -I/usr/include/qt/QtTest -I/usr/include/qt/QtCore -I. -I/usr/lib/qt/mkspecs/linux-g++
 QMAKE         = /usr/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -40,7 +40,7 @@ DISTNAME      = HelloWorld1.0.0
 DISTDIR = /home/nick/Development/HelloWorld/.tmp/HelloWorld1.0.0
 LINK          = g++
 LFLAGS        = -fPIC
-LIBS          = $(SUBLIBS) /usr/lib/libQt5Core.so -lpthread   
+LIBS          = $(SUBLIBS) /usr/lib/libQt5Test.so /usr/lib/libQt5Core.so -lpthread   
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -52,8 +52,11 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = main.cpp 
-OBJECTS       = main.o
+SOURCES       = mergesort_test.cpp \
+		mergesorting.cpp moc_mergesort_test.cpp
+OBJECTS       = mergesort_test.o \
+		mergesorting.o \
+		moc_mergesort_test.o
 DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		/usr/lib/qt/mkspecs/common/unix.conf \
 		/usr/lib/qt/mkspecs/common/linux.conf \
@@ -269,6 +272,7 @@ DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		/usr/lib/qt/mkspecs/features/resources.prf \
 		/usr/lib/qt/mkspecs/features/moc.prf \
 		/usr/lib/qt/mkspecs/features/link_ltcg.prf \
+		/usr/lib/qt/mkspecs/features/testlib_defines.prf \
 		/usr/lib/qt/mkspecs/features/unix/thread.prf \
 		/usr/lib/qt/mkspecs/features/qmake_use.prf \
 		/usr/lib/qt/mkspecs/features/file_copies.prf \
@@ -276,7 +280,9 @@ DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		/usr/lib/qt/mkspecs/features/exceptions.prf \
 		/usr/lib/qt/mkspecs/features/yacc.prf \
 		/usr/lib/qt/mkspecs/features/lex.prf \
-		HelloWorld.pro  main.cpp
+		HelloWorld.pro mergesort_test.h \
+		mergesorting.h mergesort_test.cpp \
+		mergesorting.cpp
 QMAKE_TARGET  = HelloWorld
 DESTDIR       = 
 TARGET        = HelloWorld
@@ -503,6 +509,7 @@ Makefile: HelloWorld.pro /usr/lib/qt/mkspecs/linux-g++/qmake.conf /usr/lib/qt/mk
 		/usr/lib/qt/mkspecs/features/resources.prf \
 		/usr/lib/qt/mkspecs/features/moc.prf \
 		/usr/lib/qt/mkspecs/features/link_ltcg.prf \
+		/usr/lib/qt/mkspecs/features/testlib_defines.prf \
 		/usr/lib/qt/mkspecs/features/unix/thread.prf \
 		/usr/lib/qt/mkspecs/features/qmake_use.prf \
 		/usr/lib/qt/mkspecs/features/file_copies.prf \
@@ -727,6 +734,7 @@ Makefile: HelloWorld.pro /usr/lib/qt/mkspecs/linux-g++/qmake.conf /usr/lib/qt/mk
 /usr/lib/qt/mkspecs/features/resources.prf:
 /usr/lib/qt/mkspecs/features/moc.prf:
 /usr/lib/qt/mkspecs/features/link_ltcg.prf:
+/usr/lib/qt/mkspecs/features/testlib_defines.prf:
 /usr/lib/qt/mkspecs/features/unix/thread.prf:
 /usr/lib/qt/mkspecs/features/qmake_use.prf:
 /usr/lib/qt/mkspecs/features/file_copies.prf:
@@ -750,7 +758,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/qt/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents mergesort_test.h mergesorting.h $(DISTDIR)/
+	$(COPY_FILE) --parents mergesort_test.cpp mergesorting.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -782,8 +791,15 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib/qt/mkspecs/features/data/dummy.cpp
 	g++ -pipe -g -std=gnu++11 -Wall -Wextra -dM -E -o moc_predefs.h /usr/lib/qt/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all:
+compiler_moc_header_make_all: moc_mergesort_test.cpp
 compiler_moc_header_clean:
+	-$(DEL_FILE) moc_mergesort_test.cpp
+moc_mergesort_test.cpp: mergesort_test.h \
+		mergesorting.h \
+		moc_predefs.h \
+		/usr/bin/moc
+	/usr/bin/moc $(DEFINES) --include /home/nick/Development/HelloWorld/moc_predefs.h -I/usr/lib/qt/mkspecs/linux-g++ -I/home/nick/Development/HelloWorld -I/usr/include/qt -I/usr/include/qt/QtTest -I/usr/include/qt/QtCore -I/usr/include/c++/12.2.0 -I/usr/include/c++/12.2.0/x86_64-pc-linux-gnu -I/usr/include/c++/12.2.0/backward -I/usr/lib/gcc/x86_64-pc-linux-gnu/12.2.0/include -I/usr/local/include -I/usr/lib/gcc/x86_64-pc-linux-gnu/12.2.0/include-fixed -I/usr/include mergesort_test.h -o moc_mergesort_test.cpp
+
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
 compiler_moc_source_make_all:
@@ -794,12 +810,19 @@ compiler_yacc_impl_make_all:
 compiler_yacc_impl_clean:
 compiler_lex_make_all:
 compiler_lex_clean:
-compiler_clean: compiler_moc_predefs_clean 
+compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean 
 
 ####### Compile
 
-main.o: main.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
+mergesort_test.o: mergesort_test.cpp mergesort_test.h \
+		mergesorting.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mergesort_test.o mergesort_test.cpp
+
+mergesorting.o: mergesorting.cpp mergesorting.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mergesorting.o mergesorting.cpp
+
+moc_mergesort_test.o: moc_mergesort_test.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mergesort_test.o moc_mergesort_test.cpp
 
 ####### Install
 

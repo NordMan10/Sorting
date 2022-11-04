@@ -10,8 +10,8 @@ CONFIG += no_testcase_installs
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        main.cpp \
-        mergesort_test.cpp
+        mergesort_test.cpp \
+        mergesorting.cpp
 
 TARGET = HelloWorld
 
@@ -21,4 +21,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    mergesort_test.h
+    mergesort_test.h \
+    mergesorting.h
